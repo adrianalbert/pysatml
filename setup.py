@@ -1,11 +1,11 @@
 from setuptools import setup
 
-setup(name='satapi',
-      version='0.1',
-      description='Python wrapper around several satellite imagery APIs',
-      url='https://github.com/adrianalbert/satapi',
+setup(name='pysatml',
+      version='0.1.1',
+      description='Satellite data imagery preprocessing and formatting functionality for typical machine learning/computer vision tasks.',
+      url='https://github.com/adrianalbert/pysatml',
       author='Adrian Albert',
       author_email='adrian.t.albert@gmail.com',
       license='MIT',
-      packages=['satapi'],
+      packages=['pysatml'],
       zip_safe=False)

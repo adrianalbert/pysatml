@@ -1,4 +1,4 @@
-# satimg
+# pysatml
 
 This repository contains utilities for handling common tasks related to the processing of GIS data formats for machine learning applications. 
 
@@ -8,3 +8,11 @@ Typically, machine learning algorithms are trained using many small samples (ima
 * sampling small images from large GeoTiff files, appropriately handling geographic coordinate systems and units of distance. [example notebook](examples/SatImage-tutorial-sampling.ipynb)
 * constructing spatial masks for image segmentation tasks
 
+## Installation
+
+>>> pip install pysatml
+>>> import pysatml
+
+## Example usage
+
+[example notebook](examples/SatImage-tutorial-sampling.ipynb)
