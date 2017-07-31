@@ -1,5 +1,7 @@
 # pysatml
 
+Note: this package is under active development, and some functionality is incomplete or untested. 
+
 This repository contains utilities for handling common tasks related to the processing of GIS data formats for machine learning applications. 
 
 Geospatial and remote-sensing data typically comes in GIS raster formats (such as GeoTiff) that contain information about coordinate systems, location, etc. These files are typically large and unwieldy for current ML algorithms and pipelines. 
@@ -10,8 +12,10 @@ Typically, machine learning algorithms are trained using many small samples (ima
 
 ## Installation
 
->>> pip install pysatml
->>> import pysatml
+>>> 
+pip install pysatml
+import pysatml
+>>> 
 
 ## Example usage
 
