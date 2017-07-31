@@ -248,67 +248,6 @@ def get_geotiff_bounds(raster):
 	return latlongMin[1], latlongMin[0], latlongMax[1], latlongMax[0]
 
 
-def read_prj(prj_file):
-	'''
-	Read projection file into string.
-	'''
-	prj_text = open(prj_file, 'r').read()
-	srs = osr.SpatialReference()
-	if srs.ImportFromWkt(prj_text):
-	    raise ValueError("Error importing PRJ information from: %s" % prj_file)
-	prj = srs.ExportToProj4()
-	if prj == "":
-	    return '+proj=merc +lon_0=0 +lat_ts=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs '
-	else:
-	    return prj
-
-
-def xy2lonlat(xy, prj=""):
-	'''
-	Convert northing/easting coordinates to commonly-used lat/lon.
-	'''
-	x, y = xy
-	inProj = Proj(prj) 
-	outProj = Proj(init='epsg:4326')
-	lon, lat = transform(inProj,outProj,x,y) 
-	return lon, lat
-    
-
-def lonlat2xy(lonlat, prj=""):
-	'''
-	Convert commonly-used lat/lon to northing/easting coordinates.
-	'''
-	lon, lat = lonlat
-	inProj = Proj(init='epsg:4326')
-	outProj = Proj(prj) 
-	x, y = transform(inProj,outProj,lon,lat) 
-	return x, y
-    
-
-def polygon_xy2lonlat(p, prj=""):
-	'''
-	Convert polygon coordinates from meter to lon/lat.
-	'''
-	inProj = Proj(prj) 
-	outProj = Proj(init='epsg:4326')
-	x, y = p.exterior.coords.xy
-	locs_meter = zip(x, y)
-	locs_lonlat= [transform(inProj,outProj,x1,y1) for x1,y1 in locs_meter]
-	return Polygon(locs_lonlat)
-
-
-def polygon_lonlat2xy(p, prj=""):
-	'''
-	Convert polygon coordinates from lon/lat to meter.
-	'''
-	inProj = Proj(init='epsg:4326')
-	outProj = Proj(prj) 
-	lon, lat = p.exterior.coords.xy
-	locs_lonlat = zip(lon, lat)
-	locs_meter = [transform(inProj,outProj,x,y) for x,y in locs_lonlat]
-	return Polygon(locs_meter)
-
-
 def save_image_data(img, dumpPath, pickle=False):
     basedir = os.path.dirname(dumpPath)
     # img = exposure.rescale_intensity(img, out_range='float')
