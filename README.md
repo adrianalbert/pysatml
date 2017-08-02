@@ -1,6 +1,6 @@
 # pysatml
 
-Note: this package is under active development, and some functionality is incomplete or untested. 
+**Note: this package is under active development, and some functionality is incomplete or untested.**
 
 This repository contains utilities for handling common tasks related to the processing of GIS data formats for machine learning applications. 
 
