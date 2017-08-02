@@ -12,10 +12,10 @@ Typically, machine learning algorithms are trained using many small samples (ima
 
 ## Installation
 
-'''
+```
 >>> pip install pysatml
 >>> import pysatml
-'''
+```
 
 ## Example usage
 
