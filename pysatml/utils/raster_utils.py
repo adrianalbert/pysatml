@@ -6,7 +6,6 @@ from osgeo import gdal, osr
 from gdal import gdalconst
 from gdalconst import * 
 import osr
-import math
 
 import rasterio
 from rasterio.features import shapes

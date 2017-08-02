@@ -1,18 +1,11 @@
 # numeric packages
 import numpy as np
 import pandas as pd
+import math
 
 # filesystem and OS
 import sys, os, time
 import glob
-
-# plotting
-from matplotlib import pyplot as plt
-import matplotlib
-
-# compression
-import gzip
-import cPickle as pickle
 import copy
 
 # geo stuff
