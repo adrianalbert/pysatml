@@ -12,11 +12,30 @@ Typically, machine learning algorithms are trained using many small samples (ima
 
 ## Installation
 
+The easiest way to install @pysatml is via @pip:
+
+```bash
+pip install pysatml
 ```
->>> pip install pysatml
->>> import pysatml
+
+You can also clone the master branch of this repository and install the latest development version:
+
+```bash
+git clone https://github.com/adrianalbert/pysatml.git
+cd pysatml/
+python setup.py
+```
+
+You can check whether the module has installed successfuly by opening a Python console and typing:
+```python
+import pysatml
 ```
 
 ## Example usage
 
-[example notebook](examples/SatImage-tutorial-sampling.ipynb)
+The main functionality in @pysatml is provided via the SatImage class.  
+```python
+from pysatml import SatImage
+```
+
+An example of using this class is provided in an [example Jupyter notebook](examples/SatImage-tutorial-sampling.ipynb).
