@@ -12,7 +12,7 @@ Typically, machine learning algorithms are trained using many small samples (ima
 
 ## Installation
 
-The easiest way to install @pysatml is via @pip:
+The easiest way to install `pysatml` is via `pip`:
 
 ```bash
 pip install pysatml
@@ -33,7 +33,7 @@ import pysatml
 
 ## Example usage
 
-The main functionality in @pysatml is provided via the SatImage class.  
+The main functionality in `pysatml` is provided via the `SatImage` class.  
 ```python
 from pysatml import SatImage
 ```
