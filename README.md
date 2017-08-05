@@ -22,7 +22,7 @@ You can also clone the master branch of this repository and install the latest d
 ```bash
 git clone https://github.com/adrianalbert/pysatml.git
 cd pysatml/
-python setup.py
+python setup.py install
 ```
 
 You can check whether the module has installed successfuly by opening a Python console and typing:
