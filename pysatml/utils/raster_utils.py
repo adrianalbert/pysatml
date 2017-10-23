@@ -142,3 +142,4 @@ def extract_image_pix(raster, pixLoc, pixSize):
 		for b in bands]
 	img = np.asarray(img)
 	return img
+

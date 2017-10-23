@@ -18,6 +18,7 @@ from gdalconst import *
 # for processing image data
 import skimage
 from skimage import exposure, io
+from PIL import Image, ImageDraw
 
 # the data will be exported as numpy arrays
 import numpy as np
@@ -73,8 +74,7 @@ class SatImage(object):
 	def get_value_at_location(self, loc):
 		return self.get_image_at_location(loc)
 
-
-	def get_image_at_location(self, loc, w=None, dumpPath=None, pickle=False):
+	def get_image_at_location(self, loc, w=None, toKm=True, dumpPath=None, pickle=False):
 		"""
 		Crop raster at location loc (lat,lon) with size w x w (in meters). Return a data matrix or save to file. 
 		If w is not set, return just the pixel values at <loc>. 
@@ -93,7 +93,8 @@ class SatImage(object):
 			return None
 
 		w = 0 if w is None else w
-		wLat, wLon = gu.km_to_deg_at_location(loc, (w,w))
+		w = w if isinstance(w, tuple) else (w,w)
+		wLat, wLon = gu.km_to_deg_at_location(loc, w) if toKm else w
 		# note that all the GDAL-based code assumes locations are given as (lon,lat), so we must reverse loc
 		img = ru.extract_centered_image_lonlat(img[0], loc[::-1], (wLon, wLat))
 
@@ -102,6 +103,24 @@ class SatImage(object):
 			save_image_data(img, dumpPath, pickle=False)
 		return img
 
+	def extract_polygon_mask(self, poly):
+		'''
+		Given a shapely polygon, extract an cropping from the raster that contains the input geometry. Mask all values outside the given polygon by NaN.
+		'''
+		# crop an image from raster containing the polygon
+		bounds = poly.bounds
+		wLon, wLat = np.abs(bounds[2]-bounds[0]), np.abs(bounds[3]- bounds[1])
+		lon, lat = p.centroid.xy
+		center = (lon[0], lat[0])
+		img = self.get_image_at_location(center, w=(wLon, wLat)):
+		W, H = img.shape
+
+		# create mask of polygon
+		mask = Image.new('L', (W, H), np.nan)
+		ImageDraw.Draw(mask).polygon(zip(p.boundary.xy[0], p.boundary.xy[1]), outline=1, fill=1)
+		mask = numpy.array(mask)
+		
+		return img * mask
 
 	def get_image_at_locations(self,locs,w=None,dumpPath=None,pickle=False):
 		""" Obtain sample images at different locations.
