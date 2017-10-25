@@ -11,9 +11,40 @@ import copy
 # geo stuff
 import geopandas as gpd
 from shapely.geometry import Point, Polygon
+import shapely
+import shapely.ops as ops
 from osgeo import gdal, osr
-from pyproj import Proj, transform
+from pyproj import Proj, transform, Geod
+from functools import partial
 
+wgs84_geod = Geod(ellps='WGS84') #Distance will be measured on this ellipsoid - more accurate than a spherical method
+
+#Get distance between pairs of lat-lon points
+def compute_geo_distance_km(latlon1,latlon2):
+    lat1,lon1 = latlon1
+    lat2,lon2 = latlon2    
+    az12,az21,dist = wgs84_geod.inv(lon1,lat1,lon2,lat2) #Yes, this order is correct
+    return dist / 1.0e3 # return km
+
+def compute_polygon_size(p):
+    bbox = p.bounds
+    L = compute_geo_distance_km((bbox[1], bbox[0]), (bbox[3], bbox[0]))
+    W = compute_geo_distance_km((bbox[1], bbox[0]), (bbox[1], bbox[2]))
+    L, W = max([L,W]), min([L,W])
+    return L, W
+
+def compute_polygon_area_km2(poly):
+    geom_area = ops.transform(
+        partial(
+            transform,
+            Proj(init='EPSG:4326'),
+            Proj(
+                proj='aea',
+                lat1=poly.bounds[1],
+                lat2=poly.bounds[3])),
+        poly)
+    # return the area in m^2
+    return geom_area.area / 1.0e6
 
 def km_to_deg_at_location(loc, sizeKm):
     latMin, lonMin, latMax, lonMax = bounding_box_at_location(loc, sizeKm)

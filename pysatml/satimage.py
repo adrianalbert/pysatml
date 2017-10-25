@@ -3,6 +3,7 @@ import sys, os
 
 # for handling geometry and AOIs
 from shapely.geometry import Polygon, Point
+from shapely.geometry.multipolygon import MultiPolygon
 from shapely.wkt import dumps as wkt_dumps
 import geojson
 import math
@@ -74,6 +75,14 @@ class SatImage(object):
 	def get_value_at_location(self, loc):
 		return self.get_image_at_location(loc)
 
+	def _get_raster(self, loc):
+		raster = [ds for bounds, ds in self._raster.iteritems() \
+			if (loc[0]>=bounds[0] and loc[0]<bounds[2]) and \
+				(loc[1]>=bounds[1] and loc[1]<bounds[3])]
+		if len(raster) == 0:
+			return None
+		return raster[0]
+
 	def get_image_at_location(self, loc, w=None, toKm=True, dumpPath=None, pickle=False):
 		"""
 		Crop raster at location loc (lat,lon) with size w x w (in meters). Return a data matrix or save to file. 
@@ -86,41 +95,61 @@ class SatImage(object):
 		if len(loc) == 0:
 			return None
 
-		img = [img for bounds, img in self._raster.iteritems() \
-			if (loc[0]>=bounds[0] and loc[0]<bounds[2]) and \
-				(loc[1]>=bounds[1] and loc[1]<bounds[3])]
-		if len(img) == 0:
-			return None
-
 		w = 0 if w is None else w
 		w = w if isinstance(w, tuple) else (w,w)
 		wLat, wLon = gu.km_to_deg_at_location(loc, w) if toKm else w
 		# note that all the GDAL-based code assumes locations are given as (lon,lat), so we must reverse loc
-		img = ru.extract_centered_image_lonlat(img[0], loc[::-1], (wLon, wLat))
+		raster = self._get_raster(loc)
+		if raster is None:
+			return None
+		img = ru.extract_centered_image_lonlat(raster, loc[::-1], (wLon, wLat))
 
 		if dumpPath is not None:
 			dumpPath += "%2.6f_%2.6f_%dkm"%(loc[0], loc[1], w)
 			save_image_data(img, dumpPath, pickle=False)
 		return img
 
-	def extract_polygon_mask(self, poly):
+	def extract_polygon_mask(self, poly, w=None):
 		'''
-		Given a shapely polygon, extract an cropping from the raster that contains the input geometry. Mask all values outside the given polygon by NaN.
+		Given a shapely polygon, extract an cropping from the raster that contains the input geometry. If w (km) is specified, extract a window of size w. Mask all values outside the given polygon by NaN.
 		'''
+		# if the polygon is actually a collection of polygons (MultiPolygon)
+		# we take the largest polygon
+		if isinstance(poly, MultiPolygon):
+		    polygons = [polygon for polygon in poly]
+		    polygons.sort(key=lambda p: p.area, reverse=True)
+		    poly = polygons[0]
+
 		# crop an image from raster containing the polygon
-		bounds = poly.bounds
-		wLon, wLat = np.abs(bounds[2]-bounds[0]), np.abs(bounds[3]- bounds[1])
-		lon, lat = p.centroid.xy
-		center = (lon[0], lat[0])
-		img = self.get_image_at_location(center, w=(wLon, wLat)):
-		W, H = img.shape
+		lon, lat = poly.centroid.xy
+		center = (lat[0], lon[0]) # note lat,lon to work with satimg
+		toKm = True
+		if w is None:
+		    bounds = poly.bounds
+		    wLon,wLat = np.abs(bounds[2]-bounds[0]),np.abs(bounds[3]-bounds[1])
+		    w = max([wLon, wLat])
+		    w = (w,w)
+		    toKm = False
+		elif not isinstance(w, tuple):
+		    w = (w,w)
+		img = self.get_image_at_location(center, w=w, toKm=toKm)
+		C, W, H = img.shape # again, it's wLat, wLon
+
+		# convert polygon coordinates from latlon to image coordinates
+		ds = self._get_raster(center)
+		gt = ds.GetGeoTransform()
+		poly_list = zip(poly.boundary.xy[0],poly.boundary.xy[1])
+		poly_list = [gu.geoLoc_to_pixLoc(p, gt=gt) for p in poly_list]
+		center_pix= gu.geoLoc_to_pixLoc(center[::-1], gt=gt)
+		xmin, ymin = ru.get_image_center_pix(center_pix, (H,W))[:2]
+		poly_list = [(x-xmin,y-ymin) for (x,y) in poly_list]
 
 		# create mask of polygon
-		mask = Image.new('L', (W, H), np.nan)
-		ImageDraw.Draw(mask).polygon(zip(p.boundary.xy[0], p.boundary.xy[1]), outline=1, fill=1)
-		mask = numpy.array(mask)
-		
-		return img * mask
+		mask = Image.new('L', (H, W), 0)
+		ImageDraw.Draw(mask).polygon(poly_list, outline=2, fill=1)
+		mask = np.array(mask)
+		# img[:,mask==0] = np.nan
+		return np.vstack([img, np.expand_dims(mask,0)])
 
 	def get_image_at_locations(self,locs,w=None,dumpPath=None,pickle=False):
 		""" Obtain sample images at different locations.
