@@ -47,7 +47,7 @@ modeByType = {
 
 class SatImage(object):
 
-	def __init__(self, rasterFile, force_wgs84=False):
+	def __init__(self, rasterFile, force_wgs84=False, resolution=None):
 		"""
 		Initialize with either one or multiple raster files where the data of interest resides. Some times large raster files are broken down into several tiles to facilitate processing and distribution.
 		force_wgs84: project raster to commonly-used WGS84 format.
@@ -65,7 +65,11 @@ class SatImage(object):
 				data = ru.project_to_wgs84(data) 
 				# if gdal version >= 2.0, Warp is available
 				# data = gdal.Warp("tmp.tif",data,dstSRS='EPSG:4326')
-			print ru.get_geotiff_bounds(data)
+			print data.GetGeoTransform()
+			if resolution is not None:
+				if type(resolution) is not tuple:
+					resolution = (resolution, resolution)
+				data = resize_raster(data, resolution)
 			self._raster[ru.get_geotiff_bounds(data)] = data
 
 
@@ -229,3 +233,5 @@ def save_image_data(img, dumpPath, pickle=False):
     else:
         io.imsave(dumpPath+".tif", img, compress=6)
 
+def resize_raster(raster, resolution):
+	pass
