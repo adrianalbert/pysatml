@@ -7,5 +7,5 @@ setup(name='pysatml',
       author='Adrian Albert',
       author_email='adrian.t.albert@gmail.com',
       license='MIT',
-      packages=['pysatml'],
+      packages=['pysatml','pysatml/utils'],
       zip_safe=False)
