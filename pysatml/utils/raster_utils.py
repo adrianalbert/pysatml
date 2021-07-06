@@ -10,7 +10,7 @@ import osr
 import rasterio
 from rasterio.features import shapes
 
-import gis_utils as gu
+from .gis_utils import geoLoc_to_pixLoc,geoSize_to_pixSize
 
 def raster2polygon(raster_file, band=1):
 	mask = None
@@ -97,12 +97,12 @@ def project_to_wgs84(src_ds):
 
 def extract_centered_image_lonlat(raster, lonlat, geoSize):
 	gt = raster.GetGeoTransform()
-	pixCenter = gu.geoLoc_to_pixLoc(lonlat, gt)
+	pixCenter = geoLoc_to_pixLoc(lonlat, gt)
 	geoWidth, geoHeight = geoSize
 	if geoWidth==0 or geoHeight==0 or geoWidth is None or geoHeight is None:
 		return extract_centered_image_pix(raster, pixCenter, (1,1))[:,0,0]
 	else:
-		pixWidth, pixHeight = gu.geoSize_to_pixSize(geoSize, gt)
+		pixWidth, pixHeight = geoSize_to_pixSize(geoSize, gt)
 		return extract_centered_image_pix(raster, pixCenter, (pixWidth, pixHeight))
 
 
