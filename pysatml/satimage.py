@@ -64,7 +64,7 @@ class SatImage(object):
 				data = project_to_wgs84(data) 
 				# if gdal version >= 2.0, Warp is available
 				# data = gdal.Warp("tmp.tif",data,dstSRS='EPSG:4326')
-			print(data.GetGeoTransform())
+			#print(data.GetGeoTransform())
 			if resolution is not None:
 				if type(resolution) is not tuple:
 					resolution = (resolution, resolution)
