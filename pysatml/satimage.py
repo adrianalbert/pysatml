@@ -26,9 +26,8 @@ import numpy as np
 import struct
 
 # local modules
-from utils import gis_utils as gu
-from utils import vector_utils as vu 
-from utils import raster_utils as ru
+from .utils.gis_utils import km_to_deg_at_location,geoLoc_to_pixLoc
+from .utils.raster_utils import get_image_center_pix,project_to_wgs84,get_geotiff_bounds,extract_centered_image_lonlat
 
 # constants
 WHOLE_WORLD_BOUNDS = (-180, -85, 180, 85)
@@ -62,15 +61,15 @@ class SatImage(object):
 			if data is None:
 				continue
 			if force_wgs84:
-				data = ru.project_to_wgs84(data) 
+				data = project_to_wgs84(data) 
 				# if gdal version >= 2.0, Warp is available
 				# data = gdal.Warp("tmp.tif",data,dstSRS='EPSG:4326')
-			print data.GetGeoTransform()
+			#print(data.GetGeoTransform())
 			if resolution is not None:
 				if type(resolution) is not tuple:
 					resolution = (resolution, resolution)
 				data = resize_raster(data, resolution)
-			self._raster[ru.get_geotiff_bounds(data)] = data
+			self._raster[get_geotiff_bounds(data)] = data
 
 
 	def polygonize_raster(self):
@@ -101,12 +100,12 @@ class SatImage(object):
 
 		w = 0 if w is None else w
 		w = w if isinstance(w, tuple) else (w,w)
-		wLat, wLon = gu.km_to_deg_at_location(loc, w) if toKm else w
+		wLat, wLon = km_to_deg_at_location(loc, w) if toKm else w
 		# note that all the GDAL-based code assumes locations are given as (lon,lat), so we must reverse loc
 		raster = self._get_raster(loc)
 		if raster is None:
 			return None
-		img = ru.extract_centered_image_lonlat(raster, loc[::-1], (wLon, wLat))
+		img = extract_centered_image_lonlat(raster, loc[::-1], (wLon, wLat))
 
 		if dumpPath is not None:
 			dumpPath += "%2.6f_%2.6f_%dkm"%(loc[0], loc[1], w)
@@ -143,9 +142,9 @@ class SatImage(object):
 		ds = self._get_raster(center)
 		gt = ds.GetGeoTransform()
 		poly_list = zip(poly.boundary.xy[0],poly.boundary.xy[1])
-		poly_list = [gu.geoLoc_to_pixLoc(p, gt=gt) for p in poly_list]
-		center_pix= gu.geoLoc_to_pixLoc(center[::-1], gt=gt)
-		xmin, ymin = ru.get_image_center_pix(center_pix, (H,W))[:2]
+		poly_list = [geoLoc_to_pixLoc(p, gt=gt) for p in poly_list]
+		center_pix= geoLoc_to_pixLoc(center[::-1], gt=gt)
+		xmin, ymin = get_image_center_pix(center_pix, (H,W))[:2]
 		poly_list = [(x-xmin,y-ymin) for (x,y) in poly_list]
 
 		# create mask of polygon

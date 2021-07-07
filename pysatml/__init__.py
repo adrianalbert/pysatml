@@ -1,1 +1,1 @@
-from satimage import SatImage
+from .satimage import SatImage

@@ -9,7 +9,7 @@ from osgeo import gdal, osr
 from pyproj import Proj, transform
 
 # local modules
-import gis_utils as gu
+from .gis_utils import bounding_box_at_location
 
 
 def compute_gdf_bounds(gdf):
@@ -30,7 +30,7 @@ def filter_gdf_by_polygon(gdf, polygon):
 
 
 def filter_gdf_by_centered_window(gdf, center, window):
-    latmin, lonmin, latmax, lonmax = gu.bounding_box_at_location(center, window)
+    latmin, lonmin, latmax, lonmax = bounding_box_at_location(center, window)
     pbox = Polygon([(lonmin,latmin), (lonmax,latmin), (lonmax,latmax), (lonmin,latmax)])
     return filter_gdf_by_polygon(gdf, pbox)
 
