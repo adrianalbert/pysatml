@@ -1,5 +1,5 @@
 geocoder==1.22.4
-numpy==1.11.0
+numpy==1.21.0
 GDAL==1.11.0
 pyproj==1.9.5.1
 scikit_image==0.13.0
