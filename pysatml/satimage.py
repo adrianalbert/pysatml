@@ -12,9 +12,9 @@ import math
 import geocoder
 
 # for reading GeoTiffs
-from osgeo import gdal, osr
-from gdal import gdalconst
-from gdalconst import * 
+from osgeo import gdal, osr, gdalconst
+# from gdal import gdalconst
+# from gdalconst import * 
 
 # for processing image data
 import skimage
@@ -65,7 +65,7 @@ class SatImage(object):
 				data = ru.project_to_wgs84(data) 
 				# if gdal version >= 2.0, Warp is available
 				# data = gdal.Warp("tmp.tif",data,dstSRS='EPSG:4326')
-			print data.GetGeoTransform()
+			print(data.GetGeoTransform())
 			if resolution is not None:
 				if type(resolution) is not tuple:
 					resolution = (resolution, resolution)

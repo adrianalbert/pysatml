@@ -1,0 +1,9 @@
+README.md
+setup.py
+pysatml/__init__.py
+pysatml/satimage.py
+pysatml.egg-info/PKG-INFO
+pysatml.egg-info/SOURCES.txt
+pysatml.egg-info/dependency_links.txt
+pysatml.egg-info/not-zip-safe
+pysatml.egg-info/top_level.txt

@@ -1,0 +1,8 @@
+Metadata-Version: 2.1
+Name: pysatml
+Version: 0.1.0
+Summary: Satellite data imagery preprocessing and formatting functionality for typical machine learning/computer vision tasks.
+Home-page: https://github.com/adrianalbert/pysatml
+Author: Adrian Albert
+Author-email: adrian.t.albert@gmail.com
+License: MIT
